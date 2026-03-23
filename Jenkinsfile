@@ -18,7 +18,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 // Added credentialsId for SSH authentication
-                git url: 'git@github.com:TaysaAbinader/SP1_Assign7.git',
+                git url: 'git@github.com:TaysaAbinader/OP2Assignment1.git',
                     branch: 'main'
             }
         }
