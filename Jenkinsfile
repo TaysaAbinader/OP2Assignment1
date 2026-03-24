@@ -22,11 +22,7 @@ pipeline {
         stage('Build & Test') {
             steps {
                 // Keep the combined clean verify to ensure agent runs
-                sh 'mvn clean verify \
-                    -Dglass.platform=Monocle \
-                    -Dmonocle.platform=Headless \
-                    -Dprism.order=sw \
-                    -Djava.awt.headless=true'
+                sh 'mvn clean verify'
             }
         }
 
