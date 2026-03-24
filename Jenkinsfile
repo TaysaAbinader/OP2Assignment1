@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "tfabinader/localizeDemo1"
+        DOCKER_IMAGE = "tfabinader/calculator-demo"
         DOCKER_HUB_CREDS = 'docker-hub-pat'
     }
 
@@ -21,7 +21,7 @@ pipeline {
 
         stage('Build & Test') {
             steps {
-                // 'verify' runs clean, tests, and jacoco:report in one continuous session
+                // Keep the combined clean verify to ensure agent runs
                 sh 'mvn clean verify \
                     -Dglass.platform=Monocle \
                     -Dmonocle.platform=Headless \
@@ -32,10 +32,15 @@ pipeline {
 
         stage('Publish Results') {
             steps {
-                // Publish Unit Tests
                 junit '**/target/surefire-reports/*.xml'
-                // Publish JaCoCo Coverage
-                jacoco()
+
+                // Explicitly define patterns so Jenkins finds the files
+                jacoco(
+                    execPattern: '**/target/jacoco.exec',
+                    classPattern: '**/target/classes',
+                    sourcePattern: '**/src/main/java',
+                    inclusionPattern: '**/*.class'
+                )
             }
         }
 
