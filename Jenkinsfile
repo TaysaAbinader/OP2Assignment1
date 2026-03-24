@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "tfabinader/calculator-demo"
+        DOCKER_IMAGE = "tfabinader/op2-assignment-1"
         DOCKER_HUB_CREDS = 'docker-hub-pat'
     }
 
