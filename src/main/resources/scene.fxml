@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox alignment="CENTER" spacing="15.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.CartController">
+    <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+
+    <Label fx:id="lblTitle" text="Shopping Cart" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+
+    <HBox spacing="10" alignment="CENTER">
+        <ComboBox fx:id="langSelector" promptText="Select Language" />
+        <Button fx:id="btnConfirm" onAction="#handleLanguageChange" text="Confirm" />
+    </HBox>
+
+    <Separator />
+
+    <GridPane vgap="10" hgap="10" alignment="CENTER">
+        <Label fx:id="lblPrice" text="Price:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtPrice" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+        <Label fx:id="lblQuantity" text="Quantity:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtQuantity" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+    </GridPane>
+
+    <Button fx:id="btnCalculate" onAction="#handleCalculate" text="Calculate" maxWidth="Infinity"/>
+
+    <HBox spacing="5" alignment="CENTER">
+        <Label fx:id="lblResult" text="Total:" />
+        <Label fx:id="lblTotalValue" text="0.00" style="-fx-font-weight: bold;" />
+    </HBox>
+</VBox>
