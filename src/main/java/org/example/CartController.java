@@ -2,7 +2,11 @@ package org.example;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 public class CartController {
@@ -12,14 +16,19 @@ public class CartController {
     @FXML private Label lblTotalValue;
     @FXML private Button btnCalculate, btnConfirm;
 
-    private ResourceBundle bundle;
+   private LocalizationService locService = new LocalizationService();
+    private CartService cartService = new CartService();
+
+    // Track the cart session
     private double currentTotal = 0;
+    private int totalItemsCount = 0;
+    private List<CartItem> currentCartItems = new ArrayList<>();
+    private String currentLangCode = "en";
 
     @FXML
     public void initialize() {
         langSelector.getItems().addAll("English", "Finnish", "Swedish", "Japanese", "Arabic");
-        // Default to English
-        updateLanguage(new Locale("en", "US"));
+        updateLanguage("en"); // Default
     }
 
     @FXML
@@ -27,31 +36,31 @@ public class CartController {
         String selection = langSelector.getValue();
         if (selection == null) return;
 
-        Locale locale = switch (selection) {
-            case "Finnish" -> new Locale("fi", "FI");
-            case "Swedish" -> new Locale("sv", "SE");
-            case "Japanese" -> new Locale("ja", "JP");
-            case "Arabic" -> new Locale("ar", "AR");
-            default -> new Locale("en", "US");
+        currentLangCode = switch (selection) {
+            case "Finnish" -> "fi";
+            case "Swedish" -> "sv";
+            case "Japanese" -> "ja";
+            case "Arabic" -> "ar";
+            default -> "en";
         };
-        updateLanguage(locale);
+        updateLanguage(currentLangCode);
     }
 
-    private void updateLanguage(Locale locale) {
-        bundle = ResourceBundle.getBundle("MessagesBunble", locale);
+    private void updateLanguage(String langCode) {
+        // Fetch from Database instead of properties file!
+        Map<String, String> strings = locService.getLanguageStrings(langCode);
 
-        // Update UI text from properties file
-        lblPrice.setText(bundle.getString("prompt2")); // "Enter price"
-        lblQuantity.setText(bundle.getString("prompt3")); // "Enter quantity"
-        lblResult.setText(bundle.getString("result")); // "Total cost"
-        btnCalculate.setText(bundle.getString("calculate_button")); // Add this key to your .properties
+        if (!strings.isEmpty()) {
+            lblPrice.setText(strings.get("prompt2"));
+            lblQuantity.setText(strings.get("prompt3"));
+            lblResult.setText(strings.get("result"));
+            btnCalculate.setText(strings.get("calculate_button"));
+        }
 
-        // Handle Arabic RTL
+        // Handle Arabic RTL Layout
         if (lblTitle.getScene() != null) {
             lblTitle.getScene().getRoot().setNodeOrientation(
-                locale.getLanguage().equals("ar") ?
-                javafx.geometry.NodeOrientation.RIGHT_TO_LEFT :
-                javafx.geometry.NodeOrientation.LEFT_TO_RIGHT
+                langCode.equals("ar") ? javafx.geometry.NodeOrientation.RIGHT_TO_LEFT : javafx.geometry.NodeOrientation.LEFT_TO_RIGHT
             );
         }
     }
@@ -60,18 +69,26 @@ public class CartController {
     private void handleCalculate() {
         try {
             double price = Double.parseDouble(txtPrice.getText());
-            double qty = Double.parseDouble(txtQuantity.getText());
+            int qty = Integer.parseInt(txtQuantity.getText());
 
-            // Reusing your static backend method!
+            // 1. Add item to our session list
+            CartItem item = new CartItem(price, qty);
+            currentCartItems.add(item);
+
+            // 2. Update overall totals
+            totalItemsCount += qty;
             currentTotal = ShoppingCartCalculator.calculate(currentTotal, qty, price);
-
             lblTotalValue.setText(String.format("%.2f", currentTotal));
 
-            // Clear inputs for next item
+            // 3. Save to Database!
+            cartService.saveCart(totalItemsCount, currentTotal, currentLangCode, currentCartItems);
+
+            // 4. Clear inputs for next item
             txtPrice.clear();
             txtQuantity.clear();
+
         } catch (NumberFormatException e) {
-            // Show error if user enters text instead of numbers
+            System.err.println("Please enter valid numbers.");
         }
     }
 }
