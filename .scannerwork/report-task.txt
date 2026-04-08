@@ -1,0 +1,6 @@
+projectKey=CartCalculator
+serverUrl=http://localhost:9000
+serverVersion=26.3.0.120487
+dashboardUrl=http://localhost:9000/dashboard?id=CartCalculator
+ceTaskId=353bb5f0-d8ab-472a-92b7-c4c069684912
+ceTaskUrl=http://localhost:9000/api/ce/task?id=353bb5f0-d8ab-472a-92b7-c4c069684912
