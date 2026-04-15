@@ -4,6 +4,8 @@ pipeline {
     environment {
         DOCKER_IMAGE = "tfabinader/op2-assignment-1"
         DOCKER_HUB_CREDS = 'docker-hub-pat'
+        // This 'SonarServer' must match the name you gave in Jenkins > System
+        SONAR_SERVER_NAME = 'SonarServer'
     }
 
     tools {
@@ -21,16 +23,31 @@ pipeline {
 
         stage('Build & Test') {
             steps {
-                // Keep the combined clean verify to ensure agent runs
                 sh 'mvn clean verify'
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                // withSonarQubeEnv handles the credentials and URL automatically
+                withSonarQubeEnv("SonarQubeServer") {
+                    sh 'mvn sonar:sonar'
+                }
+            }
+        }
+
+        stage("Quality Gate") {
+            steps {
+                // Now that the webhook validation is disabled, this will work!
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
             }
         }
 
         stage('Publish Results') {
             steps {
                 junit '**/target/surefire-reports/*.xml'
-
-                // Explicitly define patterns so Jenkins finds the files
                 jacoco(
                     execPattern: '**/target/jacoco.exec',
                     classPattern: '**/target/classes',
