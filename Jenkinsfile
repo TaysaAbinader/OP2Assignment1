@@ -30,8 +30,12 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 // withSonarQubeEnv handles the credentials and URL automatically
-                withSonarQubeEnv("SonarQubeServer") {
-                    sh 'mvn sonar:sonar'
+                withSonarQubeEnv("${SONAR_SERVER_NAME}") {
+                    //sh 'mvn sonar:sonar'
+                    // Bind the Jenkins credential 'sonar-token' to the variable 'SONAR_AUTH'
+                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_AUTH')]) {
+                        sh "mvn sonar:sonar -Dsonar.token=${SONAR_AUTH}"
+                    }
                 }
             }
         }
