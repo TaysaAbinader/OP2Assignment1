@@ -14,13 +14,6 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                git url: 'git@github.com:TaysaAbinader/OP2Assignment1.git',
-                    branch: 'main'
-            }
-        }
-
         stage('Build & Test') {
             steps {
                 sh 'mvn clean verify'
