@@ -9,8 +9,9 @@ pipeline {
     }
 
     tools {
-        jdk 'JDK25'
+        jdk 'JDK21'
         maven 'Maven3'
+        dockerTool 'mac-docker'
     }
 
     stages {
