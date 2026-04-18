@@ -36,3 +36,9 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+# SonarQube temporary files
+.scannerwork/
+
+# If you use the SonarLint IDE plugin
+.sonarlint/
