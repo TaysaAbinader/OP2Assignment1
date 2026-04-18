@@ -5,9 +5,7 @@ import javafx.scene.control.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.ResourceBundle;
 
 public class CartController {
     @FXML private ComboBox<String> langSelector;
