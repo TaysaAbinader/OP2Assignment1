@@ -66,10 +66,12 @@ pipeline {
         stage('Push to Docker Hub') {
             steps {
                 script {
-                    sh "docker context use default"
-                    withDockerRegistry([credentialsId: "${DOCKER_HUB_CREDS}", url: '']) {
-                        sh "docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}"
-                        sh "docker push ${DOCKER_IMAGE}:latest"
+                    docker.withTool('mac-docker') {
+                        sh "docker context use default"
+                        docker.withRegistry('https://index.docker.io/v1/', "${DOCKER_HUB_CREDS}") {
+                            def customImage = docker.image("${DOCKER_IMAGE}:latest")
+                            customImage.push()
+                        }
                     }
                 }
             }
