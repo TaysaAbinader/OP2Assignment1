@@ -4,7 +4,6 @@ pipeline {
     environment {
         DOCKER_IMAGE = "tfabinader/op2-assignment-1"
         DOCKER_HUB_CREDS = 'docker-hub-pat'
-        // This 'SonarServer' must match the name you gave in Jenkins > System
         SONAR_SERVER_NAME = 'SonarServer'
     }
 
@@ -17,15 +16,14 @@ pipeline {
     stages {
         stage('Build & Test') {
             steps {
+                // Jenkins compiles and tests locally on your Mac to generate reports
                 sh 'mvn clean verify'
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
-                // withSonarQubeEnv handles the credentials and URL automatically
                 withSonarQubeEnv("${SONAR_SERVER_NAME}") {
-                    // Bind the Jenkins credential 'sonar-token' to the variable 'SONAR_AUTH'
                     withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_AUTH')]) {
                         sh "mvn sonar:sonar -Dsonar.token=${SONAR_AUTH}"
                     }
@@ -35,7 +33,6 @@ pipeline {
 
         stage("Quality Gate") {
             steps {
-                // Now that the webhook validation is disabled, this will work!
                 timeout(time: 5, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
                 }
@@ -60,6 +57,14 @@ pipeline {
                     sh "docker build -t ${DOCKER_IMAGE}:${BUILD_NUMBER} ."
                     sh "docker tag ${DOCKER_IMAGE}:${BUILD_NUMBER} ${DOCKER_IMAGE}:latest"
                 }
+            }
+        }
+
+        stage('Run GUI App') {
+            steps {
+                // The --rm flag ensures the container is deleted when you close the JavaFX window.
+                // It routes the display to your Mac's XQuartz server.
+                sh "docker run --rm -e DISPLAY=host.docker.internal:0 -e DB_HOST=host.docker.internal ${DOCKER_IMAGE}:${BUILD_NUMBER}"
             }
         }
 
